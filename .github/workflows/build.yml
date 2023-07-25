@@ -1,0 +1,39 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - master
+    paths: ['.github/workflows/**', '**/Makefile', '**/*.h', '**/*.c']
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths: ['**/Makefile', '**/*.h', '**/*.c']
+
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
+jobs:
+  # check basic builds to avoid breaking changes
+  ubuntu-focal-make:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v1
+
+      - name: Dependencies
+        id: depends
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential -y
+
+      - name: Build
+        id: make_build
+        run: |
+          make
+
+      - name: Build runfast
+        id: make_build_runfast
+        run: |
+          make runfast
