@@ -37,3 +37,32 @@ jobs:
         id: make_build_runfast
         run: |
           make runfast
+
+  macOS-latest-make:
+    runs-on: macos-latest
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v1
+
+      - name: Dependencies
+        id: depends
+        continue-on-error: true
+        run: |
+          brew update
+
+      - name: Build
+        id: make_build
+        run: |
+          make
+
+      - name: Build runfast
+        id: make_build_runfast
+        run: |
+          make runfast
+
+      - name: Build clang
+        id: make_build_clang
+        run: |
+          make clang
