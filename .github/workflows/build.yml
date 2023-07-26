@@ -71,6 +71,13 @@ jobs:
   windows-64-make:
     runs-on: windows-latest
 
+    strategy:
+      matrix:
+        arch:
+          - amd64
+          - amd64_x86
+          - amd64_arm64
+
     steps:
       - name: Clone
         id: checkout
@@ -79,10 +86,12 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
 
-      - name: Setup MSVC
+      - name: Setup MSVC ${{ matrix.arch }}
         uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.arch }}
 
-      - name: Build
+      - name: Build ${{ matrix.arch }}
         continue-on-error: true
         id: make_build
         run: |
