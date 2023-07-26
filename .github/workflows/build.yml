@@ -68,7 +68,7 @@ jobs:
 #        run: |
 #          make clang
 
-  windows-64-make:
+  windows-latest-make:
     runs-on: windows-latest
 
     strategy:
