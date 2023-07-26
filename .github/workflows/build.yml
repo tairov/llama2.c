@@ -80,26 +80,10 @@ jobs:
         uses: microsoft/setup-msbuild@v1
 
       - name: Build
-        id: cmake_build
-        run: |
-          mkdir build
-          cd build
-          cmake ..
-          cmake --build . --config runfast
-
-      - name: Configure
-        id: configure
         continue-on-error: true
-        run: >
-          cmake -S . -B ./build -A x64 -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build
         id: make_build
-        continue-on-error: true
         run: |
-          cd ./build
-          msbuild RUN.vcxproj -t:build -p:configuration=Release -p:platform=x64
-
+          make windowscl
 #
 #  windows-32-make:
 #    runs-on: windows-latest
