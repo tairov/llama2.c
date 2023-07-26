@@ -4,10 +4,10 @@ on:
   push:
     branches:
       - master
-    paths: ['.github/workflows/**', '**/Makefile', '**/*.h', '**/*.c']
+    paths: ['.github/workflows/**', '**/Makefile', '**/*.c']
   pull_request:
     types: [opened, synchronize, reopened]
-    paths: ['**/Makefile', '**/*.h', '**/*.c']
+    paths: ['**/Makefile', '**/*.c']
 
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
