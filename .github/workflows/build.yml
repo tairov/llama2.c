@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - windows-mmap-1
     paths: ['.github/workflows/**', '**/Makefile', '**/*.c']
   pull_request:
     types: [opened, synchronize, reopened]
