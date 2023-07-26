@@ -83,8 +83,8 @@ jobs:
         id: configure
         continue-on-error: true
         run: >
-          cmake -S . -B ./build -A ${{ matrix.arch }}
-          -DCMAKE_BUILD_TYPE=${{ matrix.build }}
+          cmake -S . -B ./build -A x64
+          -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         id: make_build
