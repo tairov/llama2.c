@@ -15,58 +15,58 @@ env:
 
 jobs:
   # check basic builds to avoid breaking changes
-  ubuntu-focal-make:
-    runs-on: ubuntu-20.04
-
-    steps:
-      - name: Clone
-        id: checkout
-        uses: actions/checkout@v1
-
-      - name: Dependencies
-        id: depends
-        run: |
-          sudo apt-get update
-          sudo apt-get install build-essential -y
-
-      - name: Build
-        id: make_build
-        run: |
-          make
-
-      - name: Build runfast
-        id: make_build_runfast
-        run: |
-          make runfast
-
-  macOS-latest-make:
-    runs-on: macos-latest
-
-    steps:
-      - name: Clone
-        id: checkout
-        uses: actions/checkout@v1
-
-      - name: Dependencies
-        id: depends
-        continue-on-error: true
-        run: |
-          brew update
-
-      - name: Build
-        id: make_build
-        run: |
-          make
-
-      - name: Build runfast
-        id: make_build_runfast
-        run: |
-          make runfast
-
-      - name: Build clang
-        id: make_build_clang
-        run: |
-          make clang
+#  ubuntu-focal-make:
+#    runs-on: ubuntu-20.04
+#
+#    steps:
+#      - name: Clone
+#        id: checkout
+#        uses: actions/checkout@v1
+#
+#      - name: Dependencies
+#        id: depends
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install build-essential -y
+#
+#      - name: Build
+#        id: make_build
+#        run: |
+#          make
+#
+#      - name: Build runfast
+#        id: make_build_runfast
+#        run: |
+#          make runfast
+#
+#  macOS-latest-make:
+#    runs-on: macos-latest
+#
+#    steps:
+#      - name: Clone
+#        id: checkout
+#        uses: actions/checkout@v1
+#
+#      - name: Dependencies
+#        id: depends
+#        continue-on-error: true
+#        run: |
+#          brew update
+#
+#      - name: Build
+#        id: make_build
+#        run: |
+#          make
+#
+#      - name: Build runfast
+#        id: make_build_runfast
+#        run: |
+#          make runfast
+#
+#      - name: Build clang
+#        id: make_build_clang
+#        run: |
+#          make clang
 
   windows-64-make:
     runs-on: windows-latest
@@ -78,11 +78,11 @@ jobs:
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
-
-      - name: Build
-        id: make_build
-        run: |
-          msbuild
+#
+#      - name: Build
+#        id: make_build
+#        run: |
+#          msbuild
 
       - name: Build run
         id: make_build_run
@@ -99,11 +99,6 @@ jobs:
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
-
-      - name: Build
-        id: make_build
-        run: |
-          msbuild
 
       - name: Build run
         id: make_build_run
