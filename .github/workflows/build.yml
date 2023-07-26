@@ -65,7 +65,7 @@ jobs:
       - name: Build clang
         id: make_build_clang
         run: |
-          make clang
+          make run CC=clang
 
   windows-latest-make:
     runs-on: windows-latest
