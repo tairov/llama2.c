@@ -78,29 +78,34 @@ jobs:
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
+
+      - name: Configure
+        id: configure
+        continue-on-error: true
+        run: >
+          cmake -S . -B ./build -A ${{ matrix.arch }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build }}
+
+      - name: Build
+        id: make_build
+        continue-on-error: true
+        run: |
+          cd ./build
+          msbuild RUN.vcxproj -t:build -p:configuration=Release -p:platform=x64
+
 #
-#      - name: Build
-#        id: make_build
+#  windows-32-make:
+#    runs-on: windows-latest
+#
+#    steps:
+#      - name: Clone
+#        id: checkout
+#        uses: actions/checkout@v2
+#
+#      - name: Setup MSBuild
+#        uses: microsoft/setup-msbuild@v1
+#
+#      - name: Build run
+#        id: make_build_run
 #        run: |
-#          msbuild
-
-      - name: Build run
-        id: make_build_run
-        run: |
-          cl /EHsc /Fe:run.exe /Fo:run.obj run.c
-
-  windows-32-make:
-    runs-on: windows-latest
-
-    steps:
-      - name: Clone
-        id: checkout
-        uses: actions/checkout@v2
-
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1
-
-      - name: Build run
-        id: make_build_run
-        run: |
-          cl /EHsc /Fe:run.exe /Fo:run.obj run.c
+#          cl /EHsc /Fe:run.exe /Fo:run.obj run.c
