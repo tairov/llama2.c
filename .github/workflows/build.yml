@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - windows-ci
     paths: ['.github/workflows/**', '**/Makefile', '**/*.h', '**/*.c']
   pull_request:
     types: [opened, synchronize, reopened]
@@ -66,3 +67,45 @@ jobs:
         id: make_build_clang
         run: |
           make clang
+
+  windows-64-make:
+    runs-on: windows-latest
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v2
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Build
+        id: make_build
+        run: |
+          msbuild
+
+      - name: Build run
+        id: make_build_run
+        run: |
+          cl /EHsc /Fe:run.exe /Fo:run.obj run.c
+
+  windows-32-make:
+    runs-on: windows-latest
+
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v2
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Build
+        id: make_build
+        run: |
+          msbuild
+
+      - name: Build run
+        id: make_build_run
+        run: |
+          cl /EHsc /Fe:run.exe /Fo:run.obj run.c
