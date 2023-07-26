@@ -79,12 +79,19 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
 
+      - name: Build
+        id: cmake_build
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          cmake --build . --config runfast
+
       - name: Configure
         id: configure
         continue-on-error: true
         run: >
-          cmake -S . -B ./build -A x64
-          -DCMAKE_BUILD_TYPE=Release
+          cmake -S . -B ./build -A x64 -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         id: make_build
