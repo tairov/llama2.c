@@ -40,6 +40,10 @@ clang: run.c
 clangonmp: run.c
 	clang -Ofast -fopenmp -march=native run.c  -lm  -o run
 
+.PHONY: windowscl
+windowscl: run.c
+	clang -Ofast -fopenmp -march=native run.c  -lm  -o run
+
 .PHONY: clean
 clean:
 	rm -f run
