@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - ci-check
     paths: ['.github/workflows/**', '**/Makefile', '**/*.c', '**/*.h']
   pull_request:
     types: [opened, synchronize, reopened]
