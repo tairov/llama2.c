@@ -79,6 +79,27 @@ exec(open("configurator.py").read())  # overrides from command line or config fi
 config = {k: globals()[k] for k in config_keys}  # will be useful for logging
 # -----------------------------------------------------------------------------
 
+# argparse
+import argparse
+# initialize
+parser = argparse.ArgumentParser()
+# specify config file
+parser.add_argument('config_yml', help='path to config YML')
+# runtime overrides are optional
+parser.add_argument('--overrides', '-o', help='CLI runtime overrides',
+        default={})
+# generate config
+args = parser.parse_args()
+config_yml = args.config_yml
+overrides = args.overrides
+# parse with yaml
+import yaml
+with open(config_yml, 'r') as f:
+    config = yaml.safe_load(f)
+# overrides
+for k in overrides:
+    config[k] = overrides[k]
+
 # fixing some hyperparams to sensible defaults
 lr_decay_iters = max_iters  # should be ~= max_iters per Chinchilla
 min_lr = 0.0  # minimum learning rate, should be ~= learning_rate/10 per Chinchilla
