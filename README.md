@@ -72,6 +72,26 @@ Once upon a time, there was...
 Performance is awful at the moment. 
 On my Mac M1 Max -- `~1.3 tok / sec`
 
-## License
+## citing llama2.py
+
+If you use or discuss `llama2.py` in your academic research, please cite the project to help spread awareness:
+
+```
+@misc{llama2.py,
+  author = {Aydyn Tairov}, 
+  title = {Inference Llama2 in one file of pure Python},
+  year = {2023},
+  month = {07},
+  howpublished = {\url{https://github.com/tairov/llama2.py}},
+  note = {Llama2.py, MIT License}
+}
+```
+
+We kindly request that you include a link to the GitHub repository in published papers. This will allow interested readers to easily find the latest updates and extensions to the project.
+
+`llama2.py` aims to encourage academic research on efficient implementations of transformer architectures, the `llama` model, and Python implementations of ML applications. Citing the project helps growth of the knowledge community around these topics. We appreciate your support through referencing `llama2.py`!
+
+
+## license
 
 MIT
