@@ -3,9 +3,12 @@ import setuptools
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+
+
+
 setuptools.setup(
-    name="llama2-py",  # This is the name of the package
-    version="0.0.1",  # The initial release version
+    name="llama2_py",  # This is the name of the package
+    version="0.0.6",  # The initial release version
     author="Aydyn Tairov",  # Full name of the author
     description="Inference Llama 2 in one file of pure Python",
     long_description=long_description,  # Long description read from the the readme file
@@ -17,7 +20,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],  # Information to filter the project on PyPi website
     python_requires='>=3.6',  # Minimum version requirement of the package
-    py_modules=["llama2-py"],  # Name of the python package
+    py_modules=["llama2_py"],  # Name of the python package
     package_dir={'': './'},  # Directory of the source code of the package
-    install_requires=[]  # Install other dependencies if any
+    install_requires=[], # Install other dependencies if any
 )

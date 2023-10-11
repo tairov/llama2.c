@@ -57,12 +57,15 @@ achieved tok/s: 1.3463711338028914
 ## use as a package
 [PyPi llama2-py](https://pypi.org/project/llama2-py/)
 ```bash
-pip install llama2-py
+pip install llama2-py==0.0.6
+# make sure model & tokenizer are in the same folder
+wget https://huggingface.co/karpathy/tinyllamas/resolve/main/stories15M.bin
+wget https://github.com/tairov/llama2.py/raw/master/tokenizer.bin
 ```
 
 ```python
->>> import llama2
->>> llama2.run({"checkpoint": "out/model.bin", "temperature": 0.0, "steps": 256, "prompt": None})
+>>> import llama2_py
+>>> llama2_py.run({"checkpoint": "stories15M.bin", "temperature": 0.0, "steps": 256, "prompt": None})
 <s>
 Once upon a time, there was...
 ```

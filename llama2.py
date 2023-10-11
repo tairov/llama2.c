@@ -476,15 +476,15 @@ def run(args):
 
 if __name__ == "__main__":
     args = {
-        "checkpoint": None,
+        "checkpoint": './out/stories15M.bin',
         "temperature": 0.0,
         "steps": 256,
         "prompt": None
     }
-    if len(sys.argv) < 2:
-        print(
-            "Usage: python script.py <checkpoint_file> [temperature] [steps] [prompt]")
-        sys.exit(1)
+    # if len(sys.argv) < 2:
+    #     print(
+    #         "Usage: python script.py <checkpoint_file> [temperature] [steps] [prompt]")
+    #     sys.exit(1)
 
     if len(sys.argv) >= 2:
         args["checkpoint"] = sys.argv[1]
