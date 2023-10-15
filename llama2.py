@@ -5,9 +5,18 @@ import time
 import random
 import math
 import struct
+from typing import List
 
 
 class Config:
+    dim: int
+    hidden_dim: int
+    n_layers: int
+    n_heads: int
+    n_kv_heads: int
+    vocab_size: int
+    seq_len: int
+
     def __init__(self, dim, hidden_dim, n_layers, n_heads, n_kv_heads, vocab_size, seq_len):
         self.dim = dim
         self.hidden_dim = hidden_dim
@@ -19,21 +28,20 @@ class Config:
 
 
 class TransformerWeights:
-    token_embedding_table: None
-    freq_cis_real: None
-    freq_cis_imag: None
-    rms_att_weight: None
-    wq: None
-    wk: None
-    wv: None
-    wo: None
-    rms_ffn_weight: None
-    w1: None
-    w3: None
-    w2: None
-    rms_final_weight: None
-    wcls: None
-
+    token_embedding_table: List[float]
+    rms_att_weight: List[float]
+    wq: List[float]
+    wk: List[float]
+    wv: List[float]
+    wo: List[float]
+    rms_ffn_weight: List[float]
+    w1: List[float]
+    w3: List[float]
+    w2: List[float]
+    rms_final_weight: List[float]
+    freq_cis_real: List[float]
+    freq_cis_imag: List[float]
+    wcls: List[float]
 
 # ----------------------------------------------------------------------------
 # initialization: read from checkpoint
@@ -129,18 +137,18 @@ def matmul(xout, x, w, n, d):
 
 
 class RunState:
-    x: None
-    xb: None
-    q: None
-    k: None
-    v: None
-    att: None
-    key_cache: None
-    value_cache: None
-    xb2: None
-    hb: None
-    hb2: None
-    logits: None
+    x: List[float]
+    xb: List[float]
+    q: List[float]
+    k: List[float]
+    v: List[float]
+    att: List[float]
+    key_cache: List[float]
+    value_cache: List[float]
+    xb2: List[float]
+    hb: List[float]
+    hb2: List[float]
+    logits: List[float]
 
 
 # token, pos, config, state, weights
@@ -222,7 +230,7 @@ def transformer(token: int, pos: int, conf: Config, state: RunState, weights: Tr
 
             xb_ptr = h * head_size
             # Weighted sum of the values, store back into xb
-            state.xb[xb_ptr: (h + 1) * head_size] = [0] * head_size
+            state.xb[xb_ptr: (h + 1) * head_size] = [0.0] * head_size
             for t in range(pos + 1):
                 # Get the value vector for this head and at this timestep
                 v = state.value_cache[loff + t * dim + h *
@@ -297,7 +305,7 @@ def bpe_encode(text, vocab, vocab_scores):
         id = str_lookup(string, vocab)
         if id == -1:
             print(f"not a good prompt at pos {pos}")
-            exit(1)
+            sys.exit(1)
         tokens.append(id)
 
     # Merge the best consecutive pair each iteration, according to the scores in vocab_scores
@@ -357,24 +365,24 @@ def argmax(v):
 
 
 def init_run_state(state, config):
-    state.x = [0] * config.dim
-    state.xb = [0] * config.dim
-    state.xb2 = [0] * config.dim
-    state.hb = [0] * config.hidden_dim
-    state.hb2 = [0] * config.hidden_dim
-    state.q = [0] * config.dim
-    state.k = [0] * config.dim
-    state.v = [0] * config.dim
-    state.att = [0] * (config.n_heads * config.seq_len)
-    state.logits = [0] * config.vocab_size
-    state.key_cache = [0] * (config.n_layers * config.seq_len * config.dim)
-    state.value_cache = [0] * (config.n_layers * config.seq_len * config.dim)
+    state.x = [0.0] * config.dim
+    state.xb = [0.0] * config.dim
+    state.xb2 = [0.0] * config.dim
+    state.hb = [0.0] * config.hidden_dim
+    state.hb2 = [0.0] * config.hidden_dim
+    state.q = [0.0] * config.dim
+    state.k = [0.0] * config.dim
+    state.v = [0.0] * config.dim
+    state.att = [0.0] * (config.n_heads * config.seq_len)
+    state.logits = [0.0] * config.vocab_size
+    state.key_cache = [0.0] * (config.n_layers * config.seq_len * config.dim)
+    state.value_cache = [0.0] * (config.n_layers * config.seq_len * config.dim)
 
 
 def run(args):
     checkpoint = args["checkpoint"]
-    temperature = args["temperature"]
-    steps = args["steps"]
+    temperature = float(args["temperature"])
+    steps = int(args["steps"])
     prompt = args["prompt"]
 
     rng_seed = int(time.time())
@@ -477,8 +485,8 @@ def run(args):
 if __name__ == "__main__":
     args = {
         "checkpoint": './out/stories15M.bin',
-        "temperature": 0.0,
-        "steps": 256,
+        "temperature": "0.0",
+        "steps": "256",
         "prompt": None
     }
     # if len(sys.argv) < 2:
@@ -490,10 +498,10 @@ if __name__ == "__main__":
         args["checkpoint"] = sys.argv[1]
 
     if len(sys.argv) >= 3:
-        args["temperature"] = float(sys.argv[2])
+        args["temperature"] = sys.argv[2]
 
     if len(sys.argv) >= 4:
-        args["steps"] = int(sys.argv[3])
+        args["steps"] = sys.argv[3]
 
     if len(sys.argv) >= 5:
         args["prompt"] = sys.argv[4]
