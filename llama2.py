@@ -81,8 +81,10 @@ def tokenizer_init(conf: Config, file):
     for i in range(0, conf.vocab_size):
         vocab_scores.append(read_types(1, 'f')[0])
         len = read_types(1)[0]
-        bstr = read_types(1, f'{len}s', len)
-        vocab.append(bstr[0])
+        bstr = file.read(len)
+        if type(bstr) is not str:
+            bstr = bstr.decode('utf8')
+        vocab.append(bstr)
     return vocab, vocab_scores, max_token_length
 
 
@@ -284,9 +286,6 @@ def transformer(token: int, pos: int, conf: Config, state: RunState, weights: Tr
 
 
 def str_lookup(string, vocab):
-    # little trick to make string always compatible with byte-encoded tokens in vocab list
-    string = string.encode() if isinstance(string, str) else string
-
     # Find the first perfect match for string in vocab, return its index or -1 if not found
     try:
         index = vocab.index(string)
@@ -464,7 +463,6 @@ def run(args):
             if token == 1 and vocab[next_token][0] == ' ' else vocab[next_token]
         )
 
-        token_str = token_str.decode("utf-8")
         print(token_str, end="")
         sys.stdout.flush()
 
