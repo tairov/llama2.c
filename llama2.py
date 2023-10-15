@@ -49,10 +49,9 @@ class TransformerWeights:
 def checkpoint_init_weights(weights: TransformerWeights,
                             conf: Config,
                             file,
-                            shared_weights: int,
-                            file_size) -> None:
+                            shared_weights: int) -> None:
     def read_floats(count):
-        values = struct.unpack('f' * count, file.read(count * 4))
+        values = struct.unpack(str(count) + 'f', file.read(count * 4 if count > 0 else count))
         return values
 
     weights.token_embedding_table = read_floats(conf.vocab_size * conf.dim)
@@ -68,20 +67,16 @@ def checkpoint_init_weights(weights: TransformerWeights,
     weights.rms_final_weight = read_floats(conf.dim)
     weights.freq_cis_real = read_floats(conf.seq_len * (conf.dim // conf.n_heads) // 2)
     weights.freq_cis_imag = read_floats(conf.seq_len * (conf.dim // conf.n_heads) // 2)
-    weights.wcls = weights.token_embedding_table if shared_weights else read_floats((file_size - file.tell()) // 4)
+    weights.wcls = weights.token_embedding_table if shared_weights else read_floats(-1)
 
 
 def tokenizer_init(conf: Config, file):
     vocab, vocab_scores, max_token_length = [], [], 0
 
-    def read_types(count, type='i', length=4):
-        values = struct.unpack(type * count, file.read(count * length))
-        return values
-
-    max_token_length = read_types(1)[0]
+    max_token_length = struct.unpack('i', file.read(4))[0]
     for i in range(0, conf.vocab_size):
-        vocab_scores.append(read_types(1, 'f')[0])
-        len = read_types(1)[0]
+        vocab_scores.append(struct.unpack('f', file.read(4))[0])
+        len = struct.unpack('i', file.read(4))[0]
         bstr = file.read(len)
         if type(bstr) is not str:
             bstr = bstr.decode('utf8')
@@ -389,12 +384,8 @@ def run(args):
 
     # Read in the model.bin file
     weights = TransformerWeights()
-    file_size = 0  # size of the checkpoint file in bytes
 
     with open(checkpoint, "rb") as file:
-        if not file:
-            print(f"Couldn't open file {checkpoint}")
-            sys.exit(1)
         # Read in the config header
         _config = file.read(struct.calcsize('7i'))
         # Unpacking the data
@@ -405,9 +396,8 @@ def run(args):
         # negative vocab size is hacky way of signaling unshared weights. bit yikes.
         shared_weights = 1 if config.vocab_size > 0 else 0
         config.vocab_size = abs(config.vocab_size)
-        file_size = os.path.getsize(checkpoint)  # get the file size, in bytes
 
-        checkpoint_init_weights(weights, config, file, shared_weights, file_size)
+        checkpoint_init_weights(weights, config, file, shared_weights)
 
     # Right now we cannot run for more than config.seq_len steps
     if steps <= 0 or steps > config.seq_len:
@@ -415,9 +405,6 @@ def run(args):
 
     # Read in the tokenizer.bin file
     with open("tokenizer.bin", "rb") as file:
-        if not file:
-            print("Couldn't load tokenizer.bin")
-            sys.exit(1)
         vocab, vocab_scores, max_token_length = tokenizer_init(config, file)
 
     # Create and initialize the application RunState
