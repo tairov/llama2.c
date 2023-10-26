@@ -5,9 +5,18 @@ import time
 import random
 import math
 import struct
+from typing import List
 
 
 class Config:
+    dim: int
+    hidden_dim: int
+    n_layers: int
+    n_heads: int
+    n_kv_heads: int
+    vocab_size: int
+    seq_len: int
+
     def __init__(self, dim, hidden_dim, n_layers, n_heads, n_kv_heads, vocab_size, seq_len):
         self.dim = dim
         self.hidden_dim = hidden_dim
@@ -19,21 +28,20 @@ class Config:
 
 
 class TransformerWeights:
-    token_embedding_table: None
-    freq_cis_real: None
-    freq_cis_imag: None
-    rms_att_weight: None
-    wq: None
-    wk: None
-    wv: None
-    wo: None
-    rms_ffn_weight: None
-    w1: None
-    w3: None
-    w2: None
-    rms_final_weight: None
-    wcls: None
-
+    token_embedding_table: List[float]
+    rms_att_weight: List[float]
+    wq: List[float]
+    wk: List[float]
+    wv: List[float]
+    wo: List[float]
+    rms_ffn_weight: List[float]
+    w1: List[float]
+    w3: List[float]
+    w2: List[float]
+    rms_final_weight: List[float]
+    freq_cis_real: List[float]
+    freq_cis_imag: List[float]
+    wcls: List[float]
 
 # ----------------------------------------------------------------------------
 # initialization: read from checkpoint
@@ -41,10 +49,9 @@ class TransformerWeights:
 def checkpoint_init_weights(weights: TransformerWeights,
                             conf: Config,
                             file,
-                            shared_weights: int,
-                            file_size) -> None:
+                            shared_weights: int) -> None:
     def read_floats(count):
-        values = struct.unpack('f' * count, file.read(count * 4))
+        values = struct.unpack(str(count) + 'f', file.read(count * 4 if count > 0 else count))
         return values
 
     weights.token_embedding_table = read_floats(conf.vocab_size * conf.dim)
@@ -60,22 +67,20 @@ def checkpoint_init_weights(weights: TransformerWeights,
     weights.rms_final_weight = read_floats(conf.dim)
     weights.freq_cis_real = read_floats(conf.seq_len * (conf.dim // conf.n_heads) // 2)
     weights.freq_cis_imag = read_floats(conf.seq_len * (conf.dim // conf.n_heads) // 2)
-    weights.wcls = weights.token_embedding_table if shared_weights else read_floats((file_size - file.tell()) // 4)
+    weights.wcls = weights.token_embedding_table if shared_weights else read_floats(-1)
 
 
 def tokenizer_init(conf: Config, file):
     vocab, vocab_scores, max_token_length = [], [], 0
 
-    def read_types(count, type='i', length=4):
-        values = struct.unpack(type * count, file.read(count * length))
-        return values
-
-    max_token_length = read_types(1)[0]
+    max_token_length = struct.unpack('i', file.read(4))[0]
     for i in range(0, conf.vocab_size):
-        vocab_scores.append(read_types(1, 'f')[0])
-        len = read_types(1)[0]
-        bstr = read_types(1, f'{len}s', len)
-        vocab.append(bstr[0])
+        vocab_scores.append(struct.unpack('f', file.read(4))[0])
+        len = struct.unpack('i', file.read(4))[0]
+        bstr = file.read(len)
+        if type(bstr) is not str:
+            bstr = bstr.decode('utf8')
+        vocab.append(bstr)
     return vocab, vocab_scores, max_token_length
 
 
@@ -129,18 +134,18 @@ def matmul(xout, x, w, n, d):
 
 
 class RunState:
-    x: None
-    xb: None
-    q: None
-    k: None
-    v: None
-    att: None
-    key_cache: None
-    value_cache: None
-    xb2: None
-    hb: None
-    hb2: None
-    logits: None
+    x: List[float]
+    xb: List[float]
+    q: List[float]
+    k: List[float]
+    v: List[float]
+    att: List[float]
+    key_cache: List[float]
+    value_cache: List[float]
+    xb2: List[float]
+    hb: List[float]
+    hb2: List[float]
+    logits: List[float]
 
 
 # token, pos, config, state, weights
@@ -222,7 +227,7 @@ def transformer(token: int, pos: int, conf: Config, state: RunState, weights: Tr
 
             xb_ptr = h * head_size
             # Weighted sum of the values, store back into xb
-            state.xb[xb_ptr: (h + 1) * head_size] = [0] * head_size
+            state.xb[xb_ptr: (h + 1) * head_size] = [0.0] * head_size
             for t in range(pos + 1):
                 # Get the value vector for this head and at this timestep
                 v = state.value_cache[loff + t * dim + h *
@@ -277,9 +282,6 @@ def transformer(token: int, pos: int, conf: Config, state: RunState, weights: Tr
 
 
 def str_lookup(string, vocab):
-    # little trick to make string always compatible with byte-encoded tokens in vocab list
-    string = string.encode() if isinstance(string, str) else string
-
     # Find the first perfect match for string in vocab, return its index or -1 if not found
     try:
         index = vocab.index(string)
@@ -297,7 +299,7 @@ def bpe_encode(text, vocab, vocab_scores):
         id = str_lookup(string, vocab)
         if id == -1:
             print(f"not a good prompt at pos {pos}")
-            exit(1)
+            sys.exit(1)
         tokens.append(id)
 
     # Merge the best consecutive pair each iteration, according to the scores in vocab_scores
@@ -357,24 +359,24 @@ def argmax(v):
 
 
 def init_run_state(state, config):
-    state.x = [0] * config.dim
-    state.xb = [0] * config.dim
-    state.xb2 = [0] * config.dim
-    state.hb = [0] * config.hidden_dim
-    state.hb2 = [0] * config.hidden_dim
-    state.q = [0] * config.dim
-    state.k = [0] * config.dim
-    state.v = [0] * config.dim
-    state.att = [0] * (config.n_heads * config.seq_len)
-    state.logits = [0] * config.vocab_size
-    state.key_cache = [0] * (config.n_layers * config.seq_len * config.dim)
-    state.value_cache = [0] * (config.n_layers * config.seq_len * config.dim)
+    state.x = [0.0] * config.dim
+    state.xb = [0.0] * config.dim
+    state.xb2 = [0.0] * config.dim
+    state.hb = [0.0] * config.hidden_dim
+    state.hb2 = [0.0] * config.hidden_dim
+    state.q = [0.0] * config.dim
+    state.k = [0.0] * config.dim
+    state.v = [0.0] * config.dim
+    state.att = [0.0] * (config.n_heads * config.seq_len)
+    state.logits = [0.0] * config.vocab_size
+    state.key_cache = [0.0] * (config.n_layers * config.seq_len * config.dim)
+    state.value_cache = [0.0] * (config.n_layers * config.seq_len * config.dim)
 
 
 def run(args):
     checkpoint = args["checkpoint"]
-    temperature = args["temperature"]
-    steps = args["steps"]
+    temperature = float(args["temperature"])
+    steps = int(args["steps"])
     prompt = args["prompt"]
 
     rng_seed = int(time.time())
@@ -382,12 +384,8 @@ def run(args):
 
     # Read in the model.bin file
     weights = TransformerWeights()
-    file_size = 0  # size of the checkpoint file in bytes
 
     with open(checkpoint, "rb") as file:
-        if not file:
-            print(f"Couldn't open file {checkpoint}")
-            sys.exit(1)
         # Read in the config header
         _config = file.read(struct.calcsize('7i'))
         # Unpacking the data
@@ -398,9 +396,8 @@ def run(args):
         # negative vocab size is hacky way of signaling unshared weights. bit yikes.
         shared_weights = 1 if config.vocab_size > 0 else 0
         config.vocab_size = abs(config.vocab_size)
-        file_size = os.path.getsize(checkpoint)  # get the file size, in bytes
 
-        checkpoint_init_weights(weights, config, file, shared_weights, file_size)
+        checkpoint_init_weights(weights, config, file, shared_weights)
 
     # Right now we cannot run for more than config.seq_len steps
     if steps <= 0 or steps > config.seq_len:
@@ -408,9 +405,6 @@ def run(args):
 
     # Read in the tokenizer.bin file
     with open("tokenizer.bin", "rb") as file:
-        if not file:
-            print("Couldn't load tokenizer.bin")
-            sys.exit(1)
         vocab, vocab_scores, max_token_length = tokenizer_init(config, file)
 
     # Create and initialize the application RunState
@@ -457,7 +451,6 @@ def run(args):
             if token == 1 and vocab[next_token][0] == ' ' else vocab[next_token]
         )
 
-        token_str = token_str.decode("utf-8")
         print(token_str, end="")
         sys.stdout.flush()
 
@@ -477,8 +470,8 @@ def run(args):
 if __name__ == "__main__":
     args = {
         "checkpoint": './out/stories15M.bin',
-        "temperature": 0.0,
-        "steps": 256,
+        "temperature": "0.0",
+        "steps": "256",
         "prompt": None
     }
     # if len(sys.argv) < 2:
@@ -490,10 +483,10 @@ if __name__ == "__main__":
         args["checkpoint"] = sys.argv[1]
 
     if len(sys.argv) >= 3:
-        args["temperature"] = float(sys.argv[2])
+        args["temperature"] = sys.argv[2]
 
     if len(sys.argv) >= 4:
-        args["steps"] = int(sys.argv[3])
+        args["steps"] = sys.argv[3]
 
     if len(sys.argv) >= 5:
         args["prompt"] = sys.argv[4]

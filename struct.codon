@@ -1,0 +1,37 @@
+from typing import Union
+
+def unpack(fmt: str, s) -> Union[list[float],list[int]]:
+    n = 1
+    i = 0
+    while i < len(fmt) and fmt[i].isdigit():
+        i += 1
+    if i > 1: n = int(fmt[0:i])
+
+    fmt = fmt[i:]
+
+    i = 0
+    if fmt == 'I':
+        return [ int(Ptr[u32](s[i:i+4].ptr)[0]) for i in range(0, len(s) // 4 * 4, 4) ]
+    if fmt == 'i':
+        return [ int(Ptr[i32](s[i:i+4].ptr)[0]) for i in range(0, len(s) // 4 * 4, 4) ]
+    elif fmt == 'f':
+        return [ float(Ptr[f32](s[i:i+4].ptr)[0]) for i in range(0, len(s) // 4 * 4, 4) ]
+
+def calcsize(fmt: str):
+    n = 1
+    i = 0
+    while i < len(fmt) and fmt[i].isdigit():
+        i += 1
+    if i > 0: n = int(fmt[0:i])
+
+    fmt = fmt[i:]
+
+    return n * 4 if fmt == 'I' or fmt == 'i' or fmt == 'f' else -1
+
+
+if __name__ == "__main__":
+    s='\x01\x00\x00\x00\xb0\xb1\xb2\xb3abcda000'
+    print(unpack('I', s))
+    print(unpack('i', s))
+    print(unpack('f', s))
+
