@@ -5,19 +5,21 @@
 ## demo
 
 <p align="center">
-  <img src="assets/llama2.py-demo.gif" width="720" alt="Demo Llama2.py">
+  <img src="assets/pypy-codon.gif" width="650" alt="Demo Llama2.py">
 </p>
-
 
 ## why this fork?
 
-This repository serves as a fork that provides a Python-based implementation of `llama2.c`. Designed for an extensive audience, it aims to be a straightforward "reference implementation" suitable for educational purposes.
+This repository serves as a fork that provides a Python-based implementation of `llama2.c`. Designed for an extensive
+audience, it aims to be a straightforward "reference implementation" suitable for educational purposes.
 
-The current `llama2.c` repository comprises two Python files intended for model training and one C file for inference. Our goal is to bridge the existing gap by offering a clear-cut reference implementation encapsulating all transformer logic within a concise Python file, not exceeding 500 lines of code.
+The current `llama2.c` repository comprises two Python files intended for model training and one C file for inference.
+Our goal is to bridge the existing gap by offering a clear-cut reference implementation encapsulating all transformer
+logic within a concise Python file, not exceeding 500 lines of code.
 
-Though the original Facebook/llama is written on Python, its complexity is rather high due to multiple dependencies and sophisticated optimizations implemented within. This often makes it hard to follow, particularly for those new to the field.
-
-Please note, the current performance of our implementation is relatively slow, clocking in at approximately `~1 tok/sec`. This leaves ample scope for significant performance optimizations. We welcome any contributions towards enhancing the efficiency of this project.
+Though the original Facebook/llama is written on Python, its complexity is rather high due to multiple dependencies and
+sophisticated optimizations implemented within. This often makes it hard to follow, particularly for those new to the
+field.
 
 ## feel the magic
 
@@ -55,7 +57,9 @@ achieved tok/s: 1.3463711338028914
 ```
 
 ## use as a package
+
 [PyPi llama2-py](https://pypi.org/project/llama2-py/)
+
 ```bash
 pip install llama2-py==0.0.6
 # make sure model & tokenizer are in the same folder
@@ -64,16 +68,32 @@ wget https://github.com/tairov/llama2.py/raw/master/tokenizer.bin
 ```
 
 ```python
->>> import llama2_py
->>> llama2_py.run({"checkpoint": "stories15M.bin", "temperature": 0.0, "steps": 256, "prompt": None})
-<s>
-Once upon a time, there was...
+>> > import llama2_py
+>> > llama2_py.run({"checkpoint": "stories15M.bin", "temperature": 0.0, "steps": 256, "prompt": None})
+< s >
+Once
+upon
+a
+time, there
+was...
 ```
 
 ## performance
 
-Performance is awful at the moment. 
-On my Mac M1 Max -- `~1.3 tok / sec`
+__Performance is awful at the moment.__
+UPD. Performance was significantly improved by using pypi interpretation or codona compilation.
+
+While in native python interpreter it could be clocking around 1.3 tok/sec, in pypi it's 32 tok/sec and in codona it's
+50 tok/s
+
+HW spec: Apple M1 Max
+
+| Implementation | tok/sec |
+|----------------|---------|
+| native python  | 1.3     |
+| pypi           | 32      |
+| codona         | 50      |
+
 
 ## citing llama2.py
 
@@ -90,10 +110,12 @@ If you use or discuss `llama2.py` in your academic research, please cite the pro
 }
 ```
 
-We kindly request that you include a link to the GitHub repository in published papers. This will allow interested readers to easily find the latest updates and extensions to the project.
+We kindly request that you include a link to the GitHub repository in published papers. This will allow interested
+readers to easily find the latest updates and extensions to the project.
 
-`llama2.py` aims to encourage academic research on efficient implementations of transformer architectures, the `llama` model, and Python implementations of ML applications. Citing the project helps growth of the knowledge community around these topics. We appreciate your support through referencing `llama2.py`!
-
+`llama2.py` aims to encourage academic research on efficient implementations of transformer architectures, the `llama`
+model, and Python implementations of ML applications. Citing the project helps growth of the knowledge community around
+these topics. We appreciate your support through referencing `llama2.py`!
 
 ## license
 
