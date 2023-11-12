@@ -81,9 +81,9 @@ was...
 ## performance
 
 __Performance is awful at the moment.__
-UPD. Performance was significantly improved by using pypi interpretation or codona compilation.
+UPD. Performance was significantly improved by using pypy interpretation or codona compilation.
 
-While in native python interpreter it could be clocking around 1.3 tok/sec, in pypi it's 32 tok/sec and in codona it's
+While in native python interpreter it could be clocking around 1.3 tok/sec, in pypy it's 32 tok/sec and in codona it's
 50 tok/s
 
 HW spec: Apple M1 Max
@@ -91,7 +91,7 @@ HW spec: Apple M1 Max
 | Implementation | tok/sec |
 |----------------|---------|
 | native python  | 1.3     |
-| pypi           | 32      |
+| pypy           | 32      |
 | codona         | 50      |
 
 
