@@ -453,6 +453,9 @@ def run(args):
 
         print(token_str, end="")
         sys.stdout.flush()
+        
+        if next_token == 1:
+            break
 
         # Advance forward
         token = next_token
