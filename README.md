@@ -95,6 +95,22 @@ HW spec: Apple M1 Max
 | codona         | 50      |
 
 
+## installing and running with PyPy
+
+```bash
+
+# Download and extract PyPy
+# Check what latest version their is for your OS and CPU architecture from https://www.pypy.org/download.html
+cd ..
+# E.g: on 64-bit Linux:
+wget https://downloads.python.org/pypy/pypy3.10-v7.3.15-linux64.tar.bz2
+# Extract the archive:
+tar -xvf pypy3.10-v7.3.15-linux64.tar.bz2
+cd llama2.py
+# Run the script with PyPy
+../pypy3.10-v7.3.15-linux64/bin/pypy llama2.py stories15M.bin 0.8 256 "Dream comes true this day"
+``` 
+
 ## citing llama2.py
 
 If you use or discuss `llama2.py` in your academic research, please cite the project to help spread awareness:
